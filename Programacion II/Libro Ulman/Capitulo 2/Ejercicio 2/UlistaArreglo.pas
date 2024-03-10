@@ -4,6 +4,7 @@ INTERFACE
 
 	const
 		n = 100;
+		
 	type
 		Telemento = integer;
 
@@ -47,6 +48,7 @@ IMPLEMENTATION
 			for i:= lista.fin-1 downto indice do
 				lista.elementos[i+1]:= lista.elementos[i];
 			inc(lista.fin);
+			writeln(elemento);
 			lista.elementos[indice]:= elemento;
 		end
 	end;
@@ -57,6 +59,8 @@ IMPLEMENTATION
 	begin
 		if (indice<1) or (indice>lista.fin) then
 			writeln('Error(Eliminar): La posicion no existe')
+		else if (lista.fin=1) then
+			writeln('Error(Eliminar): La lista esta vacia')
 		else begin
 			dec(lista.fin);
 			for i:= indice to lista.fin-1 do begin
