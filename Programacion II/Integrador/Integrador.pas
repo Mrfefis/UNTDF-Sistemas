@@ -1,5 +1,5 @@
 program integrador;
-uses crt;
+uses crt, SysUtils;
 const
 	n = 10;
 type
@@ -16,6 +16,75 @@ type
 		paso: boolean; //Si paso el rayo o no
 	end;
 	Ttablero = array[1..n, 1..n] of Tcamara;
+//----------------------------------------Dibujos-------------------------------------------------
+
+procedure Gato;
+begin
+	textcolor(lightblue);
+	writeln(' /|  _');
+	writeln('(+ - /       _  _  _____  __  __');
+	writeln(' |   |   \  ( \/ )(  _  )(  )(  )');
+	writeln(' |    \  /   \  /  )(_)(  )(__)(');
+	writeln(' |_|_  )/    (__) (_____)(______)');
+	textcolor(white);
+end;
+
+procedure Gato2;
+begin
+	textcolor(lightblue);
+	writeln(' /|  _');
+	writeln('(- + /       _  _  _____  __  __    _    _  ____  _  _   /\  /\  /\');
+	writeln(' |   |   \  ( \/ )(  _  )(  )(  )  ( \/\/ )(_  _)( \( )  ||  ||  ||');
+	writeln(' |    \  /   \  /  )(_)(  )(__)(    )    (  _)(_ |    |  \/  \/  \/');
+	writeln(' |_|_  )/    (__) (_____)(______)  (__/\__)(____)(_)\_)  ()  ()  ()');
+	textcolor(white);
+end;
+
+procedure Petia;
+begin
+	textcolor(lightred);
+	writeln('         uu$$$$$$$$$$$uu');
+	writeln('       uu$$$$$$$$$$$$$$$uu');
+	writeln('     u$$$$$$$$$$$$$$$$$$$$$u');
+	writeln('    u$$$$$     *$*     $$$$$u');
+	writeln('     $$$u      u$u      u$$$');
+	writeln('      *$$$$uu$$   $$uu$$$$*');
+	writeln('        *$$$$$*   *$$$$$*');
+	writeln('         u$*$*$*$*$*$*$u');
+	writeln('         $$u$ $ $ $ $u$$');
+	writeln('  u$       $$$u$u$u$$$    ');
+	writeln('u$$$$$$$uu             uuu$$$$$$');
+	writeln('$$$$$$$$$$$$$uuu   uu$$$$$***$$*');
+	writeln(' ***      **$$$$$$$$$uu   **$*');
+	writeln(' uuuu$$$$$$$$uu **$$$$$$$uuu$$$');
+	writeln(' $$$$$$****           **$$$$$$*');
+	writeln('   *$*                   **$*');
+	writeln('                              ');
+	textcolor(white);
+end;
+procedure Petia2;
+begin
+	textcolor(lightred);
+	writeln('         uu$$$$$$$$$$$uu');
+	writeln('       uu$$$$$$$$$$$$$$$uu');
+	writeln('     u$$$$$$$$$$$$$$$$$$$$$u');
+	writeln('    u$$$$$     *$*     $$$$$u');
+	writeln('     $$$u      u$u      u$$$');
+	writeln('      *$$$$uu$$   $$uu$$$$*');
+	writeln('        *$$$$$*   *$$$$$*');
+	writeln('         u$*$*$*$*$*$*$u');
+	writeln;
+	writeln('         $$u$ $ $ $ $u$$');
+	writeln('  u$       $$$u$u$u$$$    ');
+	writeln('u$$$$$$$uu             uuu$$$$$$');
+	writeln('$$$$$$$$$$$$$uuu   uu$$$$$***$$*');
+	writeln(' ***      **$$$$$$$$$uu   **$*');
+	writeln(' uuuu$$$$$$$$uu **$$$$$$$uuu$$$');
+	writeln(' $$$$$$****           **$$$$$$*');
+	writeln('   *$*                   **$*');
+	writeln('                              ');
+	textcolor(white);
+end;
 
 //-----------------------------------Manejo del Rayo----------------------------------------------
 
@@ -72,18 +141,13 @@ end;
 
 procedure CargarEspejos(var tablero: Ttablero);
 var
-	fila, columna, i, total: integer;
-	repitioc, repitiof: array[1..n] of integer;
+	fila, columna, total: integer;
 begin
 	total:= 5;
-	for i:=1 to n do begin
-		repitioc[i]:= 0;
-		repitiof[i]:= 0;
-	end;
 	while total>0 do begin
 		columna:= random(n)+1;
 		fila:= random(n)+1;
-		if (repitioc[columna]<>columna) or (repitiof[fila]<>fila) then begin
+		if tablero[fila, columna].espejo.tipo='-' then begin
 			if random(2)=1 then
 				tablero[fila, columna].espejo.tipo:= '/'
 			else
@@ -182,6 +246,7 @@ procedure Presentacion(visible: boolean);
 var
 	i: integer;
 begin
+	clrscr;
 	write('    ');
 	for i:=1 to 3*n-1 do write('-');
 	writeln;
@@ -201,112 +266,138 @@ end;
 
 procedure MenuPrincipal(var opcion: char; visible: boolean);
 begin
-	writeln('    1- Jugar.');
+	writeln('    1. Jugar');
 	if visible then
-		writeln('    2- Ocultar Espejos.')
+		writeln('    2. Ocultar Espejos')
 	else
-		writeln('    2- Mostrar Espejos.');
-	writeln('    3- Salir.');
-	write('    Opcion: ');
-	readln(opcion);
+		writeln('    2. Mostrar Espejos');
+	writeln('    3. Salir');
+	opcion:= readkey
 end;
 
-procedure ElegirNivel(var nivel: integer; visible: boolean);
+procedure ElegirNivel(var disparos: integer);
+var
+	nivel: char;
 begin
-	clrscr;
-	Presentacion(visible);
 	writeln('    Nivel 1.');
 	writeln('    Nivel 2.');
-	writeln('    Atras 3.');
-	write('    Opcion: ');
-	readln(nivel);
+	writeln('    Atras 0.');
+	nivel:= readkey;
+	case nivel of
+		'1': disparos:= 20;
+		'2': disparos:= 10;
+		else disparos:= 0
+	end
 end;
 
-procedure MenudeJuego(var opcion: char; aciertos, total: integer);
+procedure Opciones(var opcion: char; disparos, aciertos: integer; disparo: boolean);
 begin
 	writeln;
-	writeln('1. Estimar(aciertos=',aciertos,')');
-	writeln('2. Disparar(Disponibles=',total,')');
-	writeln('3. Terminar Juego');
-	write('Opcion: ');
-	readln(opcion);
+	writeln('Aciertos = ', aciertos, '':10,'Disparos = ', disparos); writeln;
+	writeln('1. Disparar'); writeln;
+	if disparo then writeln('2. Estimar', #10);
+	writeln('0. Terminar Juego');
+	opcion:= readkey
 end;
 
-procedure IniciarJuego(var tablero: Ttablero; nivel: integer; visible: boolean);
+procedure MenudeJuego(var tablero: Ttablero; var aciertos, disparos: integer; var disparo, rendirse: boolean);
 var
-	rayo: Trayo;
-	total, puntuacion, aciertos, aux: integer;
 	opcion: char;
 	acierto: boolean;
+	rayo: Trayo;
+	aux: integer;
 begin
-	total:= 0;
-	puntuacion:= 0;
-	aciertos:= 0;
-	if nivel=1 then
-		total:= 20
-	else if nivel=2 then
-		total:= 10;
-	if total<>0 then begin
-		while (total>0) and (aciertos<5) do begin
-			clrscr;
-			Presentacion(visible);
-			MostrarTabla(tablero, visible);
-			MenudeJuego(opcion, aciertos, total);
-			case opcion of
-				'1': begin 
-					Estimar(tablero, acierto);
-					if acierto then inc(aciertos);
-				end;
-				'2': begin
-					write('Desde donde quieres disparar?: ');
-					readln(aux);
-					Entrada(rayo, aux);
-					Disparar(tablero, rayo);
-					writeln('Salida: ', Salida(rayo));
-					dec(total);
-				end;
-				'3': total:= 0;
-			end;
-			if opcion<>'3' then begin
-				writeln('Presiones cualquier tecla para continuar...');
-				readkey;
-			end
+	Opciones(opcion, disparos, aciertos, disparo);
+	case opcion of
+		'1': begin
+			write('Desde donde quieres disparar?: ');
+			readln(aux);
+			Entrada(rayo, aux);
+			Disparar(tablero, rayo);
+			writeln('Salida: ', Salida(rayo));
+			dec(disparos);
+			disparo:= true;
+			writeln('Presiones cualquier tecla para continuar...');
+			readkey;
 		end;
+		'2': if disparo then begin 
+			Estimar(tablero, acierto);
+			if acierto then inc(aciertos);
+			disparo:= false;
+			writeln('Presiones cualquier tecla para continuar...');
+			readkey;
+		end;
+		'0': rendirse:= true;
+	end;
+end;
+
+procedure Perdio(aciertos: integer);
+var
+	presionada: boolean;
+begin
+	presionada:= false;
+	repeat
 		clrscr;
-		Presentacion(visible);
-		MostrarTabla(tablero, true);
-		puntuacion:= total + 2*aciertos;
-		writeln('Total Puntos: ', puntuacion);
-		writeln('Total Aciertos: ', aciertos);
-		writeln('Presiones cualquier tecla para continuar...');
-		readkey;
-	end
+		if (aciertos<5) then Petia
+		else Gato;
+		writeln; writeln('Presiones cualquier tecla para continuar...');
+		delay(500);
+		clrscr;
+		if (aciertos<5) then Petia2
+		else Gato2;
+		writeln; writeln('Presiones cualquier tecla para continuar...');
+		delay(500);
+		if KeyPressed then
+			presionada:= true
+	until (presionada);
+	readkey;
+end;
+
+procedure Puntuacion(aciertos, disparos: integer);
+begin
+	writeln;
+	writeln('   Total de aciertos(2P):  ', aciertos); writeln;
+	writeln('   Disparos Sobrantes(1P): ', disparos); writeln;
+	writeln('   Puntaje total:          ', 2*aciertos + disparos); writeln;
+	writeln('   Presiona cualquier tecla para continuar');
+	readkey; 
 end;
 
 //----------------------------------Programa Principal--------------------------------------------
 
 var
 	opcion: char;
-	visible: boolean;
+	disparo, visible, redirse: boolean;
 	tablero: Ttablero;
-	nivel: integer;
+	disparos, aciertos: integer;
 begin
 	Randomize;
 	visible:= false;
 	repeat
-		clrscr;
 		Presentacion(visible);
 		MenuPrincipal(opcion, visible);
-		case opcion of
-			'1': begin
-				ElegirNivel(nivel, visible);
-				if nivel<>3 then begin
-					Inicializar(tablero);
-					CargarEspejos(tablero);
-					IniciarJuego(tablero, nivel, visible);
+		if opcion='1' then begin
+			Presentacion(visible);
+			ElegirNivel(disparos);
+			if disparos<>0 then begin
+				Inicializar(tablero);
+				CargarEspejos(tablero);
+				aciertos:= 0;
+				disparo:= false;
+				redirse:= false;
+				while (disparos>0) and (aciertos<5) and (not redirse) do begin
+					Presentacion(visible);
+					MostrarTabla(tablero, visible);
+					MenudeJuego(tablero, aciertos, disparos, disparo, redirse);
+				end;
+				if not redirse then begin
+					Perdio(aciertos);
+					Presentacion(visible);
+					MostrarTabla(tablero, true);
+					Puntuacion(aciertos, disparos);
 				end
-			end;
-			'2': visible:= not visible;
-		end;
-	until(opcion='3')
+			end
+		end
+		else if opcion='2' then visible:= not visible;
+	until (opcion='3')
 end.
