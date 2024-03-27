@@ -1,0 +1,5 @@
+C:\Users\joaqu>docker exec -it jr_docker_ic bash
+
+cd FrancoJoaquinGomez/
+
+jr Tp1

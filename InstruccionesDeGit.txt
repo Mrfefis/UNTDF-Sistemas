@@ -1,0 +1,11 @@
+cls			: CleanScreen
+cd			: Para meterse en un directorio
+cd..			: Para salir del directorio, hacia atras.
+git status   		: Ver las cosas
+git log 		: Ver los nodos.
+git add archivo.bat	: Agrega el archivo a los cambios deseados.
+git rm archivo.bat	: deshace el agregado de un archivo especifico.
+git commit -m "mensaje"	: Guarda comentario y archivos en la pc.
+git push -u		: Sube todos los commits en la nube.		
+git pull 		: Baja los cambios en la pc
+
