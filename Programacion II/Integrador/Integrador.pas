@@ -152,6 +152,7 @@ begin
 				tablero[fila, columna].espejo.tipo:= '/'
 			else
 				tablero[fila, columna].espejo.tipo:= '\';
+			tablero[fila, columna].espejo.acertado:= false;
 			dec(total)
 		end
 	end
@@ -205,7 +206,10 @@ begin
 				else
 					write(' ',tablero[i,j].espejo.tipo, '|');
 			end
-			else write(' -|');
+			else if tablero[i,j].espejo.acertado then
+				write(' ',tablero[i,j].espejo.tipo, '|')
+			else
+				write(' -|');
 		writeln(i+2*n-1);
 	end;
 
@@ -222,9 +226,9 @@ var
 	rayofila, rayocolumna: Trayo;
 begin
 	write('Fila: ');
-	readln(fila);
+	readln(fila); writeln;
 	write('Columna: ');
-	readln(Columna);
+	readln(Columna); writeln;
 	Entrada(rayofila, fila);
 	Entrada(rayocolumna, columna);
 	with tablero[rayofila.fila, rayocolumna.columna].espejo do begin
@@ -266,12 +270,13 @@ end;
 
 procedure MenuPrincipal(var opcion: char; visible: boolean);
 begin
-	writeln('    1. Jugar');
+	writeln('    1. Jugar'); writeln;
 	if visible then
 		writeln('    2. Ocultar Espejos')
 	else
 		writeln('    2. Mostrar Espejos');
-	writeln('    3. Salir');
+	writeln;
+	writeln('    0. Salir');
 	opcion:= readkey
 end;
 
@@ -279,8 +284,8 @@ procedure ElegirNivel(var disparos: integer);
 var
 	nivel: char;
 begin
-	writeln('    Nivel 1.');
-	writeln('    Nivel 2.');
+	writeln('    Nivel 1.'); writeln;
+	writeln('    Nivel 2.'); writeln;
 	writeln('    Atras 0.');
 	nivel:= readkey;
 	case nivel of
@@ -293,10 +298,10 @@ end;
 procedure Opciones(var opcion: char; disparos, aciertos: integer; disparo: boolean);
 begin
 	writeln;
-	writeln('Aciertos = ', aciertos, '':10,'Disparos = ', disparos); writeln;
-	writeln('1. Disparar'); writeln;
+	writeln('Puntaje = ', 2*aciertos, '':10,'Disparos = ', disparos); writeln;
+	if disparos>0 then writeln('1. Disparar', #10);
 	if disparo then writeln('2. Estimar', #10);
-	writeln('0. Terminar Juego');
+	writeln('0. Terminar Juego'); writeln;
 	opcion:= readkey
 end;
 
@@ -309,12 +314,12 @@ var
 begin
 	Opciones(opcion, disparos, aciertos, disparo);
 	case opcion of
-		'1': begin
+		'1': if disparo>1 then begin
 			write('Desde donde quieres disparar?: ');
-			readln(aux);
+			readln(aux); writeln;
 			Entrada(rayo, aux);
 			Disparar(tablero, rayo);
-			writeln('Salida: ', Salida(rayo));
+			writeln('Salida: ', Salida(rayo)); writeln;
 			dec(disparos);
 			disparo:= true;
 			writeln('Presiones cualquier tecla para continuar...');
@@ -324,6 +329,7 @@ begin
 			Estimar(tablero, acierto);
 			if acierto then inc(aciertos);
 			disparo:= false;
+			writeln;
 			writeln('Presiones cualquier tecla para continuar...');
 			readkey;
 		end;
@@ -356,9 +362,11 @@ end;
 procedure Puntuacion(aciertos, disparos: integer);
 begin
 	writeln;
-	writeln('   Total de aciertos(2P):  ', aciertos); writeln;
-	writeln('   Disparos Sobrantes(1P): ', disparos); writeln;
-	writeln('   Puntaje total:          ', 2*aciertos + disparos); writeln;
+	writeln('   Total de aciertos  : ', aciertos:2, ' x2   ', 2*aciertos:2);
+	writeln('                              +');
+	writeln('   Disparos Sobrantes : ', disparos:2, ' x1   ', disparos:2);
+	writeln('                              ____');
+	writeln('   Puntaje total      : ', '':8,2*aciertos + disparos); writeln;
 	writeln('   Presiona cualquier tecla para continuar');
 	readkey; 
 end;
@@ -399,5 +407,5 @@ begin
 			end
 		end
 		else if opcion='2' then visible:= not visible;
-	until (opcion='3')
+	until (opcion='0')
 end.
