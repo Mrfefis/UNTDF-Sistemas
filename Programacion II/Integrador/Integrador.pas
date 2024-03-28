@@ -295,26 +295,28 @@ begin
 	end
 end;
 
-procedure Opciones(var opcion: char; disparos, aciertos: integer; disparo: boolean);
+procedure Opciones(var opcion: char; disparos, aciertos: integer; disparo: boolean; rayo: Trayo);
 begin
 	writeln;
-	writeln('Puntaje = ', 2*aciertos, '':10,'Disparos = ', disparos); writeln;
-	if disparos>0 then writeln('1. Disparar', #10);
+	write('Puntaje = ', 2*aciertos, '':10,'Disparos = ', disparos);
+	if disparo then write('':5,'Ultimo disparo: ', rayo.valorinicial,', ', Salida(rayo));
+	writeln; writeln;
+	if disparos>0 then writeln('1. Disparar', #10)
+	else writeln('1. Finalizar', #10);
 	if disparo then writeln('2. Estimar', #10);
-	writeln('0. Terminar Juego'); writeln;
+	writeln('0. Salir al Menu'); writeln;
 	opcion:= readkey
 end;
 
-procedure MenudeJuego(var tablero: Ttablero; var aciertos, disparos: integer; var disparo, rendirse: boolean);
+procedure MenudeJuego(var tablero: Ttablero; var rayo: Trayo; var aciertos, disparos: integer; var disparo, rendirse: boolean);
 var
 	opcion: char;
 	acierto: boolean;
-	rayo: Trayo;
 	aux: integer;
 begin
-	Opciones(opcion, disparos, aciertos, disparo);
+	Opciones(opcion, disparos, aciertos, disparo, rayo);
 	case opcion of
-		'1': if disparo>1 then begin
+		'1': if disparos>0 then begin
 			write('Desde donde quieres disparar?: ');
 			readln(aux); writeln;
 			Entrada(rayo, aux);
@@ -324,7 +326,8 @@ begin
 			disparo:= true;
 			writeln('Presiones cualquier tecla para continuar...');
 			readkey;
-		end;
+			end
+			else dec(disparos);
 		'2': if disparo then begin 
 			Estimar(tablero, acierto);
 			if acierto then inc(aciertos);
@@ -361,12 +364,13 @@ end;
 
 procedure Puntuacion(aciertos, disparos: integer);
 begin
+	inc(disparos);
 	writeln;
 	writeln('   Total de aciertos  : ', aciertos:2, ' x2   ', 2*aciertos:2);
 	writeln('                              +');
 	writeln('   Disparos Sobrantes : ', disparos:2, ' x1   ', disparos:2);
 	writeln('                              ____');
-	writeln('   Puntaje total      : ', '':8,2*aciertos + disparos); writeln;
+	writeln('   Puntaje total      : ', '':8,(2*aciertos + disparos):2); writeln;
 	writeln('   Presiona cualquier tecla para continuar');
 	readkey; 
 end;
@@ -378,6 +382,7 @@ var
 	disparo, visible, redirse: boolean;
 	tablero: Ttablero;
 	disparos, aciertos: integer;
+	ultimoDisparo: Trayo;
 begin
 	Randomize;
 	visible:= false;
@@ -393,10 +398,10 @@ begin
 				aciertos:= 0;
 				disparo:= false;
 				redirse:= false;
-				while (disparos>0) and (aciertos<5) and (not redirse) do begin
+				while (disparos>-1) and (aciertos<5) and (not redirse) do begin
 					Presentacion(visible);
 					MostrarTabla(tablero, visible);
-					MenudeJuego(tablero, aciertos, disparos, disparo, redirse);
+					MenudeJuego(tablero, ultimoDisparo, aciertos, disparos, disparo, redirse);
 				end;
 				if not redirse then begin
 					Perdio(aciertos);
