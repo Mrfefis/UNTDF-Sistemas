@@ -23,3 +23,8 @@ M' = (Q/E,Σ, [q0],δ', F'), donde
 q0.
 - δ' : Q/ExΣ->Q/E tal que δ'([q]; e) = [δ(q,e)]
 - F' = {[q] |q E F}
+
+=================================================================
+
+
+● Determinación de la ER a partir de un AF
