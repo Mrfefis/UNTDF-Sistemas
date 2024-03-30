@@ -14,6 +14,7 @@ type
 	Tcamara = record
 		espejo: Tespejo;
 		paso: boolean; //Si paso el rayo o no
+		color: integer;
 	end;
 	Ttablero = array[1..n, 1..n] of Tcamara;
 //----------------------------------------Dibujos-------------------------------------------------
@@ -136,6 +137,7 @@ begin
 			tablero[i, j].espejo.tipo:= '-';
 			tablero[i, j].espejo.acertado:= false;
 			tablero[i, j].paso:= false;
+			tablero[i, j].color:= 0;
 		end;
 end;
 
@@ -159,9 +161,13 @@ begin
 end;
 
 procedure Disparar(var tablero: Ttablero; var rayo: Trayo);
+var
+	color: integer;
 begin
+	color:= random(4)+1;
 	with rayo do while (columna>0) and (columna<n+1) and (fila>0) and (fila<n+1) do begin
 		tablero[fila, columna].paso:= true;
+		tablero[fila, columna].color:= color;
 		if tablero[fila, columna].espejo.tipo='/' then
 			case trayectoria of
 				'up': trayectoria:= 'right';
@@ -201,8 +207,18 @@ begin
 			if visible then begin
 				if tablero[i,j].espejo.tipo<>'-' then
 					write(' ',tablero[i,j].espejo.tipo, '|')
-				else if tablero[i,j].paso then
-					write(' x|')
+				else if tablero[i,j].paso then begin
+					case tablero[i, j].color of
+						1: textcolor(lightred);
+						2: textcolor(lightblue);
+						3: textcolor(yellow);
+						4: textcolor(green);
+						else textcolor(white)
+					end;
+					write(' x');
+					textcolor(white);
+					write('|');
+				end
 				else
 					write(' ',tablero[i,j].espejo.tipo, '|');
 			end

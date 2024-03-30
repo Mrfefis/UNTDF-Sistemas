@@ -6,7 +6,7 @@ program ModaVector;
 	programa en Pascal que acepte un arreglo e imprima su MODA o un mensaje si no la hay.
 }
 const
-	n = 5;
+	n = 20;
 type
 	Tvector = array[1..n] of integer;
 
@@ -15,7 +15,7 @@ var
 	i: integer;
 begin
 	for i:= 1 to n do
-		vector[i]:= Random(20)
+		vector[i]:= Random(11)
 end;
 
 procedure MostrarVector(const vector: Tvector; n: integer);
@@ -29,18 +29,39 @@ begin
 	writeln;
 end;
 
+function Frecuencia(const vector: Tvector; min, max: integer; elemento: integer): integer;
+var
+	i: integer;
+begin
+	Frecuencia:= 0;
+	for i:= min to max do if vector[i]=elemento then inc(Frecuencia)
+end;
+
 function ModaVector(const vector: Tvector; n: integer): integer;
 var
-	moda, total, totalmoda, i, j: integer;
-	paso: boolean;
+	elemento, moda, nuevamoda: integer;
+	i, j: integer;
+	haymoda: boolean;
 begin
-	moda:= vector[1];
-	totalmoda:= ;
-	for i:=2 to n do begin
-		for j:=1 to n do begin
-			total:=
-		end;
-	end
+	elemento:= 1;
+	moda:= Frecuencia(vector, 1, n, vector[elemento]);
+	haymoda:= true;
+	for i:= 2 to n do begin
+		j:= 1;
+		while (j<i) and (vector[j]<>vector[i]) do inc(j);
+		if (j=i) then begin
+			nuevamoda:= Frecuencia(vector, i, n, vector[i]);
+			if nuevamoda>moda then begin
+				elemento:= i;
+				moda:= nuevamoda;
+				haymoda:= true;
+			end
+			else if (nuevamoda=moda) then
+				haymoda:=false;
+		end
+	end;
+	if haymoda then ModaVector:= elemento
+	else ModaVector:= -1 
 end;
 
 var
@@ -55,5 +76,8 @@ begin
 	MostrarVector(vector, n);
 
 	moda:= ModaVector(vector, n);
-	writeln('La moda es: ', moda);
+	if moda=-1 then
+		writeln('No hay moda')
+	else
+		writeln('La moda es: ', vector[moda]);
 end.
