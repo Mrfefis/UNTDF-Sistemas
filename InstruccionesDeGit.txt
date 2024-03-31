@@ -9,3 +9,7 @@ git commit -m "mensaje"	: Guarda comentario y archivos en la pc.
 git push -u		: Sube todos los commits en la nube.		
 git pull 		: Baja los cambios en la pc
 
+Orden para guardar datos:
+git add --all		: guardar cambios.
+git commit -m "mensaje"	: Guarda comentario y archivos en la pc.
+git push -u		: Sube todos los commits en la nube.	
