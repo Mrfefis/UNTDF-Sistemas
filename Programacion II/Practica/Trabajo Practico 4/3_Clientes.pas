@@ -66,7 +66,6 @@ procedure CargarArchivo(var Archi: Tarchivo);
 var
 	cliente: Tcliente;
 begin
-	cliente.codigo:= 100 + FileSize(Archi);
 	cliente.nombre:= '0';
 	cliente.direccion:= '0';
 	cliente.telefono:= '0';
@@ -74,6 +73,7 @@ begin
 	cliente.saldo:= 0;
 	Seek(Archi, FileSize(Archi));
 	with cliente do while ((nombre<>'') and (direccion<>'') and (telefono<>'')) do begin
+		cliente.codigo:= 100 + FileSize(Archi);
 		clrscr;
 		textcolor(yellow);
 		writeln('':10,'Realizando la Carga de Clientes');

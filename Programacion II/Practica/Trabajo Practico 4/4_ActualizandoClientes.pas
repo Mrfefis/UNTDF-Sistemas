@@ -1,4 +1,4 @@
-program Clientes;
+program Transacciones;
 uses crt;
 {
 	Consigna:
@@ -11,11 +11,10 @@ uses crt;
 	Precondiciones:
 	▪ los archivos, en todos los casos se encuentran ordenados por el código de cliente.
 	▪ los clientes del archivo de movimientos existen en el de clientes.
-
 }
-const
-	MaxCredito = 2000;
 type
+	Tcolores = (Rojo, Verde, Amarillo, Azul, Blanco, Gris, Cian);
+
 	Tcliente = record
 		codigo: longword;
 		nombre: string[50];
@@ -34,7 +33,7 @@ type
 
 	Tmovimientos = file of Toperacion;
 
-procedure AbrirArchivo(var Archi: Tarchivo; ruta: string);
+procedure AbrirClientes(var Archi: Tclientes; ruta: string);
 begin
 	Assign(Archi, ruta);
 	{$I-}
@@ -44,116 +43,199 @@ begin
 		rewrite(Archi)
 end;
 
-procedure ListarArchivo(var Archi: Tarchivo);
-var
-	cliente: Tcliente;
+procedure AbrirMovimientos(var Archi: Tmovimientos; ruta: string);
 begin
-	Seek(Archi, 0);
-	while not EOF(Archi) do begin
-		read(Archi, cliente);
-		with cliente do begin
-			textcolor(lightblue);
-			write('Nombre: ');
-			textcolor(white);
-			write(nombre);
-			textcolor(lightgreen);
-			write(' - Direccion: ');
-			textcolor(white);
-			write(direccion);
-			textcolor(lightred);
-			write(' - Telefono: ');
-			textcolor(white);
-			writeln(telefono);
-			textcolor(yellow);
-			write('Credito maximo = ');
-			textcolor(white);
-			writeln(topecredito:0:2);
-			textcolor(lightgray);
-			writeln('-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -');
-			textcolor(white);
-		end
-	end
+	Assign(Archi, ruta);
+	{$I-}
+	Reset(Archi);
+	{$I+}
+	if (IOResult<>0) then
+		rewrite(Archi)
 end;
 
-procedure CargarArchivo(var Archi: Tarchivo);
+function BuscarDesordenado(var Archi: Tclientes; elemento: longword): integer;
 var
-	cliente: Tcliente;
+	i: integer;
+	encontrado: boolean;
+	aux: Tcliente;
 begin
-	cliente.nombre:= '0';
-	cliente.direccion:= '0';
-	cliente.telefono:= '0';
-	cliente.topecredito:= MaxCredito;
-	Seek(Archi, FileSize(Archi));
-	with cliente do while ((nombre<>'') and (direccion<>'') and (telefono<>'')) do begin
-		clrscr;
+	i:= 0;
+	Seek(Archi, 0);
+	encontrado:= false;
+	while not EOF(Archi) and not encontrado do begin
+		read(Archi, aux);
+		if (aux.codigo=elemento) then
+			encontrado:= true
+		else inc(i)
+	end;
+	if encontrado then
+		BuscarDesordenado:= i
+	else
+		BuscarDesordenado:= -1;
+end;
+
+procedure CambiarColor(color: Tcolores);
+begin
+	case color of
+		Azul: textcolor(lightblue);
+		Verde: textcolor(lightgreen);
+		Rojo: textcolor(lightred);
+		Blanco: textcolor(white);
+		Amarillo: textcolor(yellow);
+		Cian: textcolor(lightcyan);
+		Gris: textcolor(lightgray);
+	end;
+end;
+
+procedure Mensaje(mensaje: string; color1, color2: Tcolores);
+begin
+	CambiarColor(color1);
+	write(Mensaje);
+	CambiarColor(color2);
+end;
+
+procedure PedidoDatos(var movimiento: Toperacion; var valido: boolean);
+begin
+	valido:= false;
+	with movimiento do begin
 		textcolor(yellow);
-		writeln('':10,'Realizando la Carga de Clientes');
-		writeln('':5,'Deja cualquier campo vacio para cancelar');
-		textcolor(lightblue);
-		write('Nombre del Cliente: ');
-		textcolor(white);
-		readln(nombre);
-		if nombre<>'' then begin
-			textcolor(lightgreen);
-			write('Direccion: ');
-			textcolor(white);
-			readln(direccion);
-			if direccion<>'' then begin
-				textcolor(lightred);
-				write('Telefono: ');
-				textcolor(white);
-				readln(telefono);
-				if telefono<>'' then
-					write(Archi, cliente)
+		writeln('':10, 'Cargando Transacciones');
+		writeln('Ingresa 0 en cualquier campo para terminar');
+		writeln;
+		Mensaje('Codigo de Cliente: ', Azul, Blanco);
+		readln(codigo);
+		if (codigo<>0) then begin
+			Mensaje('Tipo de Transaccion: ', Verde, Blanco);
+			readln(tipo);
+			if tipo<>0 then begin
+				Mensaje('Monto: ', Rojo, Blanco);
+				readln(monto);
+				if monto>0.5 then valido:= true;
 			end
 		end
 	end
 end;
 
-function tomar(var Archi: Tarchivo; indice: word): Tcliente;
+procedure CargarMovimiento(var Movimientos: Tmovimientos; var Clientes: Tclientes);
+var
+	movimiento: Toperacion;
+	cliente: Tcliente;
+	posicion: integer;
+	valido: boolean;
 begin
-	Seek(Archi, indice);
-	read(Archi, tomar);
-	Seek(Archi, indice);
+	Seek(Movimientos, FileSize(Movimientos));
+	with movimiento do begin
+		codigo:= 1;
+		tipo:= 1;
+		monto:= 1.0;
+	end;
+	with movimiento do while (codigo<>0) and (tipo<>0) and (monto>0.5) do begin
+		clrscr;
+		PedidoDatos(movimiento, valido);
+		posicion:= BuscarDesordenado(Clientes, codigo);
+		if valido and (posicion<>-1) then begin
+			Seek(Clientes, posicion);
+			read(Clientes, cliente);
+			with cliente do case tipo of
+				1: begin
+					saldo:= saldo + monto;
+					if saldo<=topecredito then begin
+						Seek(Clientes, posicion);
+						write(Clientes, cliente);
+						Seek(Movimientos, FileSize(Movimientos));
+						write(Movimientos, movimiento);
+					end
+					else begin
+						writeln;
+						writeln('Credito Maximo alcanzado');
+						writeln('Pulsa cualquier tecla para continuar');
+						readkey;
+					end;
+				end;
+				2: begin
+					saldo:= saldo - monto;
+					if saldo>0 then begin
+						Seek(Clientes, posicion);
+						write(Clientes, cliente);
+						Seek(Movimientos, FileSize(Movimientos));
+						write(Movimientos, movimiento);
+					end
+					else begin
+						writeln;
+						writeln('No tiene saldo suficiente');
+						writeln('Pulsa cualquier tecla para continuar');
+						readkey;
+					end
+				end
+			end
+		end
+		else if (posicion=-1) then begin
+			writeln('Error, el cliente no existe');
+			writeln('Pulsa cualquier tecla para continuar...');
+			readkey
+		end
+	end
 end;
 
-procedure SubirCredito(var Archi: Tarchivo);
+procedure MostrarMovimientos(var Movimientos: Tmovimientos; codigo: longword);
+var
+	movimiento: Toperacion;
+begin
+	Seek(Movimientos, 0);
+	while not EOF(Movimientos) do begin
+		read(Movimientos, movimiento);
+		if movimiento.codigo=codigo then begin
+			writeln;
+			textcolor(lightblue);
+			write('Tipo: ');
+			textcolor(white);
+			if movimiento.tipo=1 then write('Credito ')
+			else write('Debito ');
+			textcolor(lightgreen);
+			write(' - Monto: ');
+			textcolor(white);
+			writeln(movimiento.monto:0:2);
+		end
+	end
+end;
+
+procedure ListarArchivos(var Movimientos: Tmovimientos; var Clientes: Tclientes);
 var
 	cliente: Tcliente;
 begin
-	Seek(Archi, 0);
-	while not EOF(Archi) do begin
-		read(Archi, cliente);
-		cliente.topecredito:= cliente.topecredito*(1.2);
-		Seek(Archi, FilePos(Archi)-1);
-		write(Archi, cliente);
+	Seek(Clientes, 0);
+	while not EOF(Clientes) do begin
+		read(Clientes, cliente);
+		with cliente do begin
+			Mensaje('Nombre: ', Azul, Blanco);
+			write(nombre);
+			Mensaje(' - Saldo: ', Verde, Blanco);
+			write(saldo:0:2);
+			Mensaje(' - Codigo: ', Rojo, Blanco);
+			writeln(codigo);
+			Mensaje(' - Movimientos: ', Cian, Blanco);
+			MostrarMovimientos(Movimientos, codigo);
+			writeln;
+			textcolor(lightgray);
+			writeln('-  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -');
+		end
 	end
 end;
 
 var
-	Comercio: Tclientes;
-	aumentar: char;
+	Clientes: Tclientes;
+	Movimientos: Tmovimientos;
 begin
 	Randomize;
-	AbrirArchivo(Comercio, '3_Clientes.dat');
-	CargarArchivo(Comercio);
+	AbrirClientes(Clientes, '3_Clientes.dat');
+	AbrirMovimientos(Movimientos, '4_Movimientos.dat');
+	CargarMovimiento(Movimientos, Clientes);
 	clrscr;
-	textcolor(lightred);
-	writeln('Los clientes guardados en el archivo son:');
+	textcolor(yellow);
+	writeln('':10,'Transacciones de Clientes');
 	writeln;
-	ListarArchivo(Comercio);
-	writeln;
-	writeln('Desea aumentar el tope de credito? (S/N): ');
-	readln(aumentar);
-	if (aumentar='S') or (aumentar='s') then begin
-		SubirCredito(Comercio);
-		clrscr;
-		writeln('Los clientes guardados en el archivo ahora son:');
-		writeln;
-		ListarArchivo(Comercio);
-		writeln;
-	end;
-	writeln('Ahora fuera de aqui');
-	readkey;
-	Close(Comercio);
+	textcolor(white);
+	ListarArchivos(Movimientos, Clientes);
+	Close(Movimientos);
+	Close(Clientes);
 end.
