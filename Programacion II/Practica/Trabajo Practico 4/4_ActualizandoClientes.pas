@@ -236,6 +236,7 @@ begin
 	writeln;
 	textcolor(white);
 	ListarArchivos(Movimientos, Clientes);
+	readkey;
 	Close(Movimientos);
 	Close(Clientes);
 end.
