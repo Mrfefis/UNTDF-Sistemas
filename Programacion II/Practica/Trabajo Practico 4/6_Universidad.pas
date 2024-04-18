@@ -79,6 +79,18 @@ end;
 
 // ------------------------------------------ Archivos ------------------------------------------
 
+procedure AbrirArchivo(var Archi: Tarchivo; ruta: string);
+begin
+	Assign(Archi, ruta);
+	{$I-}
+	Reset(Archi);
+	{$I+}
+	if (IOResult<>0) then
+		rewrite(Archi)
+end;
+
+// --------------------------------------- Acceso Directo ---------------------------------------
+
 procedure Asociar(var UNTDF: Tarchivo; var acceso: Tuni);
 var
 	alumno: Talumno;
@@ -92,21 +104,62 @@ begin
 	end
 end;
 
-procedure AbrirArchivo(var Archi: Tarchivo; ruta: string);
+procedure Sort(var acceso: Tuni);
+var
+    i, j: integer;
+    key: longword;
 begin
-	Assign(Archi, ruta);
-	{$I-}
-	Reset(Archi);
-	{$I+}
-	if (IOResult<>0) then
-		rewrite(Archi)
+    for i := 2 to n do begin
+        key := acceso.elementos[i];
+        j := i - 1;
+        while (j > 0) and (acceso.elementos[j] > key) do begin
+            acceso.elementos[j + 1] := acceso.elementos[j];
+            dec(j)
+        end;
+        acceso.elementos[j + 1] := key;
+    end;
+end;
+
+function Buscar(var acceso: Tuni; elemento: longword): integer;
+var
+	infimo, supremo, medio: integer;
+	encontrado: boolean;
+begin
+	Sort(acceso);
+	infimo:= 1;
+	supremo:= acceso.total;
+	encontrado:= false;
+	while (infimo<=supremo) and not encontrado do begin
+		medio:= (infimo + supremo) div 2;
+		if acceso.elementos[medio]=elemento then
+			encontrado:= true
+		else if acceso.elementos[medio]>elemento then
+			supremo:= medio - 1
+		else
+			infimo:= medio + 1
+	end;
+	if encontrado then Buscar:= medio
+	else Buscar:= -1
+end;
+
+procedure CargarAlumno(var UNTDF: Tarchivo; var acceso: Tuni);
+var
+	alumno: Talumno;
+	posicion: integer;
+begin
+	write('Legajo: ');
+	readln(alumno.legajo);
+	posicion:= Buscar(acceso, alumno.legajo);
+	if posicion=-1 then begin
+		writeln
+	end
 end;
 
 // ------------------------------------------ Interfaz ------------------------------------------
 
 procedure Opciones(var opcion: char);
 begin
-	Mensaje('1. Ingresar', Amarillo, Blanco);
+	Mensaje('1. Cargar Elemento', Amarillo, Blanco);
 	writeln;
 	Mensaje('2. Crear', Rojo, Blanco);
 	writeln;
@@ -128,8 +181,6 @@ var
 	UNTDF: Tarchivo;
 	acceso: Tuni;
 	opcion: char;
-	existe:6
-	i boolean;
 begin
 	AbrirArchivo(UNTDF, '6_UNTDF.dat');
 	Asociar(UNTDF, acceso);
@@ -139,8 +190,8 @@ begin
 		clrscr;
 		case opcion of
 			'1': begin
-				PedirAlumno(acceso);
-				CargarAlumno()
+				CargarAlumno(UNTDF, acceso);
+				readkey
 			end;
 			'0': ;
 		end
