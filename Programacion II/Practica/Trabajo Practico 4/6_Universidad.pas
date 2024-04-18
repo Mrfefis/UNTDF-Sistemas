@@ -38,8 +38,13 @@ type
 
 	Tarchivo = file of Talumno;
 
+	Tconexion = record
+		legajo: longword;
+		baja: boolean;
+	end;
+
 	Tuni = record
-		elementos: array[1..n] of longword;
+		elementos: array[1..n] of Tconexion;
 		total: integer;
 	end;
 
@@ -100,68 +105,133 @@ begin
 	while not EOF(UNTDF) and (acceso.total<n) do begin
 		read(UNTDF, alumno);
 		inc(acceso.total);
-		acceso.elementos[acceso.total]:= alumno.legajo;
+		acceso.elementos[acceso.total].legajo:= alumno.legajo;
+		acceso.elementos[acceso.total].baja:= alumno.baja;
 	end
-end;
-
-procedure Sort(var acceso: Tuni);
-var
-    i, j: integer;
-    key: longword;
-begin
-    for i := 2 to n do begin
-        key := acceso.elementos[i];
-        j := i - 1;
-        while (j > 0) and (acceso.elementos[j] > key) do begin
-            acceso.elementos[j + 1] := acceso.elementos[j];
-            dec(j)
-        end;
-        acceso.elementos[j + 1] := key;
-    end;
 end;
 
 function Buscar(var acceso: Tuni; elemento: longword): integer;
 var
-	infimo, supremo, medio: integer;
+	i: integer;
 	encontrado: boolean;
 begin
-	Sort(acceso);
-	infimo:= 1;
-	supremo:= acceso.total;
+	i:= 1;
 	encontrado:= false;
-	while (infimo<=supremo) and not encontrado do begin
-		medio:= (infimo + supremo) div 2;
-		if acceso.elementos[medio]=elemento then
+	while (i<=acceso.total) and not encontrado do begin
+		if acceso.elementos[i].legajo=elemento then
 			encontrado:= true
-		else if acceso.elementos[medio]>elemento then
-			supremo:= medio - 1
-		else
-			infimo:= medio + 1
+		else inc(i)
 	end;
-	if encontrado then Buscar:= medio
+	if encontrado then Buscar:= i
 	else Buscar:= -1
 end;
 
-procedure CargarAlumno(var UNTDF: Tarchivo; var acceso: Tuni);
+function BuscarBaja(var acceso: Tuni): integer;
+var
+	i: integer;
+	encontrado: boolean;
+begin
+	i:= 1;
+	encontrado:= false;
+	while (i<=acceso.total) and not encontrado do begin
+		if acceso.elementos[i].baja=true then
+			encontrado:= true
+		else inc(i)
+	end;
+	if encontrado then BuscarBaja:= i-1
+	else BuscarBaja:= acceso.total
+end;
+
+procedure PedirDatos(var alumno: Talumno);
+begin
+	with alumno do begin
+		Mensaje('Nombre: ', Amarillo, Blanco);
+		readln(nombre);
+		Mensaje('Domicilio: ', Cian, Blanco);
+		readln(domicilio);
+		Mensaje('telefono: ', Verde, Blanco);
+		readln(telefono);
+		Mensaje('Codigo: ', Amarillo, Blanco);
+		readln(codigo);
+		Mensaje('Materias Aprobadas: ', Cian, Blanco);
+		readln(materias);
+		Mensaje('Fecha de Inscripcion: ', Verde, Blanco);
+		readln(fecha);
+		baja:= false
+	end
+end;
+
+procedure InscribirAlumno(var UNTDF: Tarchivo; var acceso: Tuni);
 var
 	alumno: Talumno;
 	posicion: integer;
+	opcion: char;
 begin
-	write('Legajo: ');
+	Mensaje('Legajo: ', Azul, Blanco);
 	readln(alumno.legajo);
 	posicion:= Buscar(acceso, alumno.legajo);
 	if posicion=-1 then begin
-		writeln
+		PedirDatos(alumno);
+		Seek(UNTDF, BuscarBaja(acceso));
+		write(UNTDF, alumno);
+		inc(acceso.total);
+		acceso.elementos[acceso.total].legajo:= alumno.legajo;
+		acceso.elementos[acceso.total].baja:= alumno.baja;
 	end
+	else begin
+		Mensaje('El alumno ya se encuentra inscripto', Rojo, Blanco);
+		writeln;
+		Mensaje('Reemplazar (R) Cancelar(Cualquier otra tecla)', Rojo, Blanco);
+		writeln;
+		Mensaje('Opcion: ', Verde, Blanco);
+		readln(opcion);
+		if (opcion='r') or (opcion='R') then begin
+			PedirDatos(alumno);
+			Seek(UNTDF, posicion-1);
+			write(UNTDF, alumno);
+		end;
+	end
+end;
+
+procedure DardeBaja(var UNTDF: Tarchivo; var acceso: Tuni);
+begin
 end;
 
 // ------------------------------------------ Interfaz ------------------------------------------
 
+procedure Listar(var UNTDF: Tarchivo);
+var
+	alumno: Talumno;
+begin
+	Seek(UNTDF, 0);
+	while not EOF(UNTDF) do begin
+		read(UNTDF, alumno);
+		with alumno do if not baja then begin
+			Mensaje('Legajo: ', Verde, Blanco);
+			writeln(legajo);
+			Mensaje('Nombre: ', Amarillo, Blanco);
+			writeln(nombre);
+			Mensaje('Domicilio: ', Cian, Blanco);
+			writeln(domicilio);
+			Mensaje('telefono: ', Verde, Blanco);
+			writeln(telefono);
+			Mensaje('Codigo: ', Amarillo, Blanco);
+			writeln(codigo);
+			Mensaje('Materias Aprobadas: ', Cian, Blanco);
+			writeln(materias);
+			Mensaje('Fecha de Inscripcion: ', Verde, Blanco);
+			writeln(fecha);
+			Separador;
+		end
+	end;
+	readkey
+end;
+
 procedure Opciones(var opcion: char);
 begin
-	Mensaje('1. Cargar Elemento', Amarillo, Blanco);
+	Mensaje('1. Incribir Alumno', Amarillo, Blanco);
 	writeln;
-	Mensaje('2. Crear', Rojo, Blanco);
+	Mensaje('2. Listar Alumnos', Rojo, Blanco);
 	writeln;
 	Mensaje('3. Ver Empresas', Verde, Blanco);
 	writeln;
@@ -189,10 +259,15 @@ begin
 		Opciones(opcion);
 		clrscr;
 		case opcion of
-			'1': begin
-				CargarAlumno(UNTDF, acceso);
-				readkey
-			end;
+			'1': if acceso.total=n then begin
+				Mensaje('Maximo de Alumnos Alcanzado', Rojo, Blanco);
+				writeln;
+				writeln('Pulsa cualquier tecla para continuar...');
+				readkey; 
+				end
+				else InscribirAlumno(UNTDF, acceso);
+			'2': Listar(UNTDF);
+			//'3': DardeBaja(UNTDF, aceeso);
 			'0': ;
 		end
 	until (opcion='0');
