@@ -1,0 +1,55 @@
+import edu.ucdavis.jr.JR;
+
+public class Ej4{
+    private static sem wait = 1;
+    private static sem signal = 0;
+    private static boolean lock = false; 
+    
+    private static boolean TestAndSet () 
+    {
+        P(wait); 
+        boolean oldLock = lock;     // Guarda el valor original del lock
+        lock = true;
+        V(signal);                  // Libera el semaforo
+        return oldLock;
+    }
+
+    private static void reset ()
+    {
+        lock=false;
+    }
+
+
+    public static void main(String[] args) 
+    {
+        try {
+                // Realizar la operacion TestAndSet
+                boolean previousValue = TestAndSet();
+                
+                // Si la operacion TestAndSet devuelve true, significa que el candado estaba bloqueado
+                if (previousValue) 
+                {
+                    System.out.println("El candado estaba bloqueado antes de ejecutar done().");
+                }
+
+                //basicamente es para que entre al if, si se elimina no entra al if
+            JR.registerQuiescenceAction(done);       
+        } catch (edu.ucdavis.jr.QuiescenceRegistrationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static op void done() 
+    {
+        if (lock) 
+        {
+            System.out.println("El candado estaba bloqueado.");
+        } 
+        else 
+        {  
+            System.out.println("El candado estaba desbloqueado.");
+        }
+
+        System.out.println("Fin del programa "); 
+    }
+}

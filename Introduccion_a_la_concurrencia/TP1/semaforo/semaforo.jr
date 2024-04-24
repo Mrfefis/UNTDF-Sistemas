@@ -1,0 +1,52 @@
+import edu.ucdavis.jr.JR;
+
+public class semaforo {
+    private static final int T = 20; //limite
+    private static int[] buffer = new int[T]; //arreglo compartido
+    private static sem mutex = 1; //semaforo de acceso
+    private static sem go = 0; //semaforo senianlador de disponibilidad
+
+    private static void Creador(int[] buffer){
+        for (int i = 0; i < T; i++) {
+            P(mutex); //Mete un proceso y Lockea la entrada.
+            int m = i + 1;
+            buffer[i] = m;
+            System.out.println("Creador genera un Item.");
+            V(mutex); //Saca un proceso y Des-Lockea la entrada. 
+            P(go); // Sumar +1 al contador go. y dar a entender que no es 0.
+        }
+    } 
+    
+    private static void Consumidor(int[] buffer) {
+        for (int i = 0; i < T; i++) {
+            V(go); // Resta 1 al contador chekiando que no sea cero, para romper el item.
+            P(mutex); //Mete un proceso y Lockea la entrada.
+            int x = buffer[i];
+            System.out.println("Consumidor consume: " + x);
+            V(mutex); //Saca un proceso y Des-Lockea la entrada.
+        }
+    } 
+  
+    private static process productor{
+        Creador(buffer);
+    }
+
+    private static process Consumidor{
+        Consumidor(buffer);
+    }
+    //la idea seria que este todo dentro de los dos procesos y no sea nesecario llamar 
+    //a la funcionas pero  hasta ahi noma llegue pero igual funca :)
+
+
+    public static void main(String[] args) {
+        try {
+            JR.registerQuiescenceAction(done);       
+        } catch (edu.ucdavis.jr.QuiescenceRegistrationException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static op void done() {
+        System.out.println("Fin"); 
+    }
+}

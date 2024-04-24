@@ -1,0 +1,33 @@
+import edu.ucdavis.jr.JR;
+
+public class TP17{
+    private static int[] arreglo = {7, 12, 5, 8, 10, 3, 6, 15, 9}; // Ejemplo de arreglo de enteros
+    private static int maximoPar = Integer.MIN_VALUE;
+    private static int maximoImpar = Integer.MIN_VALUE;
+
+    private static process BuscarMaximoPar {
+        for (int i = 0; i < arreglo.length; i += 2) {
+            maximoPar = Math.max(maximoPar, arreglo[i]);
+        }
+    }
+
+    private static process BuscarMaximoImpar {
+        for (int i = 1; i < arreglo.length; i += 2) {
+            maximoImpar = Math.max(maximoImpar, arreglo[i]);
+        }
+    }
+
+    public static void main(String[] args) {
+        try {
+			JR.registerQuiescenceAction(done);
+		} catch (edu.ucdavis.jr.QuiescenceRegistrationException e) {
+			//TODO: handle exception
+		}
+    }
+ 
+    private static op void done(){
+        System.out.println("Maximo numero encontrado viajando por pares: "+ maximoPar);
+        System.out.println("Maximo numero encontrado viajando por impares: "+ maximoImpar);
+        
+    }
+}
