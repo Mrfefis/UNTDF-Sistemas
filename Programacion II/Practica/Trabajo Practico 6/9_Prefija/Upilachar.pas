@@ -1,4 +1,4 @@
-unit Upila;
+unit Upilachar;
 
 interface
 
@@ -13,6 +13,8 @@ interface
 		end;
 
 	procedure init(var pila: Tpila);
+
+	procedure invertir(var pila: Tpila);
 
 	procedure push(var pila: Tpila; elemento: Telemento);
 
@@ -60,6 +62,19 @@ implementation
 	function full(var pila: Tpila): boolean;
 	begin
 		full:= pila.limite=n
+	end;
+
+	procedure invertir(var pila: Tpila);
+	var
+		elemento: Telemento;
+		aux: Tpila;
+	begin
+		init(aux);
+		while not empty(pila) do begin
+			pop(pila, elemento);
+			push(aux, elemento);
+		end;
+		pila:= aux;
 	end;
 
 end.

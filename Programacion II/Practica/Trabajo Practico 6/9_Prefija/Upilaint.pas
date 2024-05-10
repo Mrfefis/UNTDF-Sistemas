@@ -1,4 +1,4 @@
-unit Upila;
+unit Upilaint;
 
 interface
 
@@ -6,13 +6,15 @@ interface
 		n = 255;
 
 	type
-		Telemento = char;
+		Telemento = integer;
 		Tpila = record
 			elementos: array[1..n] of Telemento;
 			limite: integer;
 		end;
 
 	procedure init(var pila: Tpila);
+
+	procedure invertir(var pila: Tpila);
 
 	procedure push(var pila: Tpila; elemento: Telemento);
 
@@ -61,5 +63,19 @@ implementation
 	begin
 		full:= pila.limite=n
 	end;
+
+	procedure invertir(var pila: Tpila);
+	var
+		elemento: Telemento;
+		aux: Tpila;
+	begin
+		init(aux);
+		while not empty(pila) do begin
+			pop(pila, elemento);
+			push(aux, elemento);
+		end;
+		pila:= aux;
+	end;
+
 
 end.
