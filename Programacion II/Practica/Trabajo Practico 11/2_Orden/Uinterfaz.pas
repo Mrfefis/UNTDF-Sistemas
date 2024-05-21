@@ -2,15 +2,16 @@ unit Uinterfaz;
 
 interface
 
-	uses crt, UlistaOrdenada;
+	uses crt, UlistaOrdenada, Ulista;
 
 	procedure Pausa;
 
 	procedure Opciones(var opcion: char);
 
-	procedure Cargar(var lista: Tlista);
+	procedure Cargar(var lista: Ulista.Tlista);
 
-	procedure Imprimir(lista: Tlista);
+	procedure Imprimir(lista: Ulista.Tlista;
+		listaOrdenada: UlistaOrdenada.Tlista);
 
 implementation
 
@@ -26,37 +27,34 @@ implementation
 	begin
 		writeln('1. Cargar elementos');
 		writeln('2. Borrar la lista');
-		writeln('3. Imprimir la lista');
+		writeln('3. Ordenar descendente');
+		writeln('4. Ordenar ascendente');
 		writeln('0. Terminar');
 		opcion:= readkey
 	end;
 
-	procedure Cargar(var lista: Tlista);
+	procedure Cargar(var lista: Ulista.Tlista);
 	var
 		info: Tinfo;
 	begin
-		writeln('Carga numeros positivos(Ingresa n<=0 para finalizar)');
+		writeln('Carga numeros positivos(Ingresa 0 para finalizar)');
 		write('Numero: ');
 		readln(info);
-		while (info>0) do
+		while (info<>0) do
 		begin
-			insertar(lista, info);
+			Ulista.insertar(lista, info);
 			write('Numero: ');
 			readln(info);
 		end
 	end;
 
-	procedure Imprimir(lista: Tlista);
-	var
-		indice: Tindice;
+	procedure Imprimir(lista: Ulista.Tlista;
+		listaOrdenada: UlistaOrdenada.Tlista);
 	begin
-		indice:= primero(lista);
-		while indice<>fin(lista) do
-		begin
-			write(recuperar(indice), ' ');
-			indice:= siguiente(lista, indice);
-		end;
-		writeln;
+		write('Lista = ');
+		Ulista.Listar(lista);
+		write('Lista Ordenada = ');
+		UlistaOrdenada.Listar(listaOrdenada);
 	end;
 
 end.
