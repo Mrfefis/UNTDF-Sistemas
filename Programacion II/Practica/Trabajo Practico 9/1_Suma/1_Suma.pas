@@ -1,43 +1,56 @@
-program Suma;
-uses Ulist, Umenu;
+program probando;
+uses crt, UlistaSimple, UlistaInterfaz;
 
-procedure cargar(var lista: Tlist; opcion: char);
-var
-	elemento: Telement;
+procedure Opciones(var opcion: char);
 begin
-	Mensaje('Numero entero: ', Azul);
-	readln(elemento);
-	if opcion='1' then
-		Ulist.appfirst(lista, elemento)
-	else
-		Ulist.append(lista, elemento)
+	writeln('1. Cargar al Inicio.');
+	writeln('2. Cargar al Final.');
+	writeln('3. Eliminar del Inicio.');
+	writeln('4. Eliminar del Final.');
+	writeln('5. Eliminar Lista.');
+	writeln('6. Eliminar elemento.');
+	writeln('0. Terminar.');
+	opcion:= readkey();
 end;
 
-procedure listar(lista: Tlist);
+function Sumatoria(lista: Tlista): longint;
 var
-	i: Tposicion;
+	i, limite: Tindice;
 begin
-	write('[');
-	if not empty(lista) then begin
-		for i:=1 to length(lista)-1 do begin
-			write(Ulist.recuperate(lista, i), ', ');
-		end;
-		write(Ulist.recuperate(lista, length(lista)));
-	end;
-	writeln(']');
-	readln
+	limite:= longitud(lista);
+	Sumatoria:= 0;
+	for i:= 1 to limite do
+		Sumatoria:= Sumatoria + recuperar(lista, i);
 end;
 
 var
-	lista: Tlist;
+	lista: Tlista;
 	opcion: char;
+	elemento: Tinfo;
 begin
-	create(lista);
+	iniciar(lista);
+	elemento:= 0;
+	// Ciclo del menu
 	repeat
+		// Presentacion
+		clrscr;
+		write('Lista = ');
+		listar(lista);
+		writeln('Sumatoria de la lista: ', Sumatoria(lista));
+		// Muestra el ultimo eliminado (Si existe)
+		if elemento<>0 then
+			writeln('Ultimo eliminado: ', elemento);	
+		// Toma de Desiciones
 		Opciones(opcion);
-		case opcion of
-			'1','2': Cargar(lista, opcion);
-			'3': listar(lista);
-		end
-	until(opcion='0')
+		case (opcion) of
+			'1', '2': Cargar(lista, opcion); 
+			'3', '4': Borrar(lista, opcion, elemento);
+			// Recrea la lista
+			'5': begin
+				Destruir(lista);
+				iniciar(lista);
+			end;
+			'6': BorrarElemento(lista, elemento);
+		end;
+	until(opcion='0');
 end.
