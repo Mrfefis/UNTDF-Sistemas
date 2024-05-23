@@ -54,12 +54,18 @@ implementation
 		end
 	end;
 
+	procedure nuevo(var puntero: Tpuntero; const info: Tinfo);
+	begin
+		new(puntero);
+		puntero^.info:= info;
+		puntero^.sig:= nil;
+	end;
+
 	procedure insertar(var cola: Tcola; info: Tinfo);
 	var
 		aux: Tpuntero;
 	begin
-		new(aux);
-		aux^.info:= info;
+		nuevo(aux, info);
 		if (cola=nil) then
 			aux^.sig:= aux
 		else
