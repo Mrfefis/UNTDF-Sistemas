@@ -1,0 +1,87 @@
+import edu.ucdavis.jr.JR;
+import java.util.Random;
+
+public class semaforo {
+
+    private static int IndCre = 0;
+    private static int IndCons = 0;
+
+    private static boolean ContinuarCreando = true;
+    private static boolean ContinuarConsumiendo = true;
+    
+    private static int N = 20;
+    private static int[] buffer = new int[N]; //arreglo compartido
+    private static sem mutex = 1; //semaforo de acceso
+
+
+    private static op void pausa(int tiempo){
+        try{
+            Thread.sleep(tiempo);
+        }
+        catch(java.lang.Exception e){}
+    }
+
+
+    private static process Creador
+    {
+        while (ContinuarCreando) 
+        {   
+            //pausa(1000);
+            P(mutex); //Mete un proceso y Lockea la entrada.
+            
+            if (IndCre > 19){
+                ContinuarCreando = false;
+            }
+            else{
+                
+                buffer[IndCre] = (int)(Math.random() * 100) + 1;
+                int numero = IndCre + 1;
+                System.out.println("Creador genera un Item en la posicion: "+ numero +" con el valor: " + buffer[IndCre]);
+                IndCre++; 
+            }
+
+            V(mutex); //Saca un proceso y Des-Lockea la entrada.  
+        }
+        System.out.println("Finalizado el proceso de Crear");
+    } 
+
+    private static process Consumidor 
+    {       pausa(3000);
+            while ( ContinuarConsumiendo ) 
+            {
+                if (IndCre >= IndCons)
+                {
+                    if (IndCons > 19)
+                    {
+                        ContinuarConsumiendo = false;
+                    }
+                    else{
+                        P(mutex); //Mete un proceso y Lockea la entrada.
+                        int numero = IndCons +1;
+                        System.out.println("El consumidor, consume el item en la posicion "+ numero + ", contenia el valor: "+ buffer[IndCons]+".");
+                        buffer[IndCons] = 0;
+                        IndCons++;
+    
+                        V(mutex); //Saca un proceso y Des-Lockea la entrada.
+                    }
+                }
+            }
+            System.out.println("Finalizado el proceso de Consumir");
+    } 
+
+    public static void main(String[] args) 
+    {
+        try 
+        {
+            JR.registerQuiescenceAction(done);       
+        } catch (edu.ucdavis.jr.QuiescenceRegistrationException e) 
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private static op void done() 
+    {
+        System.out.println("Programa Finalizado."); 
+    }
+}

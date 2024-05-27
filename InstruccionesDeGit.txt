@@ -13,3 +13,22 @@ Orden para guardar datos:
 git add --all		: guardar cambios.
 git commit -m "mensaje"	: Guarda comentario y archivos en la pc.
 git push -u		: Sube todos los commits en la nube.	
+
+
+===============================================
+
+Tutorial de GIT:
+
+git init
+
+te crea el repositorio y crea la carpeta .init
+
+git add nombredelarchivo.txt
+
+git commit -m "escribo hola"
+
+
+git clone //Aca copio un link de github
+
+
+
