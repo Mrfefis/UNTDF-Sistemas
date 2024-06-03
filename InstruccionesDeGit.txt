@@ -31,4 +31,15 @@ git commit -m "escribo hola"
 git clone //Aca copio un link de github
 
 
+=================================
+Renombrar la rama:
+git branch -m master main
 
+Eliminar la rama
+git push origin --delete master
+
+Configurar la rama para que sea la main(La principal)
+git push --set-upstream origin main
+
+Para verificar el estado de tu branch:
+git branch -vv
