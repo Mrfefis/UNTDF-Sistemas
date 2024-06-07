@@ -1,4 +1,4 @@
-unit Urelation2;
+unit Ucursos;
 
 interface
 
@@ -6,11 +6,11 @@ interface
 
 	type
 
-		Telement = Umultilist.Trelation2;
+		Telement = Udatos.Tcurso;
 
-		Tindice = Umultilist.Trelation2List;
+		Tindice = Umultilist.Tcursos;
 
-		Tlist = Umultilist.Trelation2List;
+		Tlist = Tindice;
 
 		Tfile = File of Telement;
 

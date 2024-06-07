@@ -1,12 +1,9 @@
-program prueba;
-uses crt, Umultilist, Urelation1, Urelation2, Udatos;
+program main;
+uses crt, Umultilist, Ualumnos, Ucursos, Udatos;
 {
 	Consigna:
 
 }
-type
-	Talumnos = Urelation1.Tlist;
-	Tcursos = Urelation2.Tlist;
 
 procedure Pausa;
 begin
@@ -20,12 +17,12 @@ var
 	curso: Tcurso;
 	alumno: Talumno;
 	opcion: char;
-	IndiceAlumno: Urelation1.Tindice;
-	IndiceCurso: Urelation2.Tindice;
+	IndiceAlumno: Ualumnos.Tindice;
+	IndiceCurso: Ucursos.Tindice;
 begin
 	Randomize;
-	Urelation1.init(Alumnos, 'Alumnos.dat');
-	Urelation2.init(Cursos, 'Cursos.dat');
+	Ualumnos.init(Alumnos, 'Alumnos.dat');
+	Ucursos.init(Cursos, 'Cursos.dat');
 	repeat
 		clrscr;
 		writeln('1. Cargar Alumno');
@@ -42,33 +39,33 @@ begin
 		case opcion of
 			'1': begin
 				CargarAlumno(alumno);
-				Urelation1.add(Alumnos, alumno);
+				Ualumnos.add(Alumnos, alumno);
 			end;
 			'2': begin
 				CargarCurso(curso);
-				Urelation2.add(Cursos, curso);
+				Ucursos.add(Cursos, curso);
 			end;
 			'3': begin
 				clrscr;
 				writeln('Lista de Alumnos de la Universidad');
-				Urelation1.listar(Alumnos);
+				Ualumnos.listar(Alumnos);
 				Pausa;
 			end;
 			'4': begin
 				clrscr;
 				writeln('Lista de Cursos de la Universidad');
-				Urelation2.listar(Cursos);
+				Ucursos.listar(Cursos);
 				Pausa;
 			end;
 			'5': begin
 				write('Codigo del curso: ');
 				readln(curso.codigo);
-				IndiceCurso:= Urelation2.search(Cursos, curso);
+				IndiceCurso:= Ucursos.search(Cursos, curso);
 				if (IndiceCurso<>nil) then
 				begin
 					write('DNI: ');
 					readln(alumno.dni);
-					IndiceAlumno:= Urelation1.search(Alumnos, alumno);
+					IndiceAlumno:= Ualumnos.search(Alumnos, alumno);
 					if (IndiceAlumno<>nil) then
 					begin
 						Umultilist.insert(IndiceAlumno, IndiceCurso);
@@ -84,9 +81,9 @@ begin
 			'6': begin
 				write('Codigo Curso: ');
 				readln(curso.codigo);
-				IndiceCurso:= Urelation2.search(Cursos, curso);
+				IndiceCurso:= Ucursos.search(Cursos, curso);
 				if (IndiceCurso<>nil) then
-					Umultilist.listarRelacion1(IndiceCurso)
+					Umultilist.listarAlumnos(IndiceCurso)
 				else
 					writeln('El alumno no existe');
 				Pausa;
@@ -94,15 +91,15 @@ begin
 			'7': begin
 				write('DNI del Alumno: ');
 				readln(alumno.dni);
-				IndiceAlumno:= Urelation1.search(Alumnos, alumno);
+				IndiceAlumno:= Ualumnos.search(Alumnos, alumno);
 				if (IndiceAlumno<>nil) then
-					Umultilist.listarRelacion2(IndiceAlumno)
+					Umultilist.listarCursos(IndiceAlumno)
 				else
 					writeln('El curso no existe');
 				Pausa;
 			end;
 		end;
 	until(opcion='0');
-	Urelation1.free(Alumnos, 'Alumnos.dat');
-	Urelation2.free(Cursos, 'Cursos.dat');
+	Ualumnos.free(Alumnos, 'Alumnos.dat');
+	Ucursos.free(Cursos, 'Cursos.dat');
 end.

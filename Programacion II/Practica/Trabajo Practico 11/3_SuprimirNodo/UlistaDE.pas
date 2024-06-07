@@ -90,10 +90,21 @@ implementation
 	var
 		aux: Tindice;
 	begin
-		if (lista^.info=info) then
-			eliminar(lista, info)
-		else begin
-		end
+		aux:= lista;
+		while (aux<>nil) and (aux^.info<>info) do
+			aux:= aux^.sig;
+		if (aux<>nil) then
+		begin
+			if (aux^.ant<>nil) then
+				aux^.ant^.sig:= aux^.sig
+			else
+				lista:= lista^.sig;
+			if (aux^.sig<>nil) then
+				aux^.sig^.ant:= aux^.ant;
+			if (aux^.sig=nil) and (aux^.ant=nil) then
+				lista:= nil;
+			dispose(aux);
+		end;
 	end;
 
 	procedure listar(lista: Tlista);

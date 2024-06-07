@@ -5,96 +5,91 @@ interface
 	uses Udatos;
 
 	type
-		// Elemento de las listas
-
-		Trelation1 = Udatos.Talumno;
-
-		Trelation2 = Udatos.Tcurso;
 
 		// Listas de elementos
 
-		Trelation1List = ^TnodoRelation1;
+		Talumnos = ^TnodoAlumno;
 
-		Trelation2List = ^TnodoRelation2;
+		Tcursos = ^TnodoCurso;
 
 		Tmultilist = ^TnodoMultilist;
 
 		// Nodos de elementos
 
-		TnodoRelation1 = record
-			element: Trelation1;
-			next: Trelation1List;
+		TnodoAlumno = record
+			element: Talumno;
+			next: Talumnos;
 			multilist: Tmultilist;
 		end;
 
-		TnodoRelation2 = record
-			element: Trelation2;
-			next: Trelation2List;
+		TnodoCurso = record
+			element: Tcurso;
+			next: Tcursos;
 			multilist: Tmultilist;
 		end;
 
 		TnodoMultilist = record
-			relation1: Trelation1List;
-			relation2: Trelation2List;
-			nextrelation1, nextrelation2: Tmultilist;
+			alumno: Talumnos;
+			curso: Tcursos;
+			nextAlumno, nextCurso: Tmultilist;
 		end;
 
-	procedure insert(relation1: Trelation1List; relation2: Trelation2List);
+	procedure insert(alumno: Talumnos; curso: Tcursos);
 
 	//procedure elminar(var relation1: Trelation1List; var relation2: Trelation2List);
 
-	procedure listarRelacion1(relation: Trelation2List);
+	procedure listarAlumnos(curso: Tcursos);
 
-	procedure listarRelacion2(relation: Trelation1List);
+	procedure listarCursos(alumno: Talumnos);
 
 implementation
 
-	procedure insert(relation1: Trelation1List; relation2: Trelation2List);
+	procedure insert(alumno: Talumnos; curso: Tcursos);
 	var
 		nodo: Tmultilist;
 	begin
-		if (relation1<>nil) and (relation2<>nil) then
+		if (alumno<>nil) and (curso<>nil) then
 		begin
-			// Creacion del nodo y relacion con los elmentos
+			// Creacion del nodo y relacion con los elementos
 			new(nodo);
-			nodo^.relation1:= relation1;
-			nodo^.relation2:= relation2;
-			// Conecta la relacion 1 con los elementos de la lista de relacion 2
-			if (relation1^.multilist=nil) then
-				nodo^.nextrelation2:= nil
+			nodo^.alumno:= alumno;
+			nodo^.curso:= curso;
+			// Conecta el alumno con la lista de Cursos
+			if (alumno^.multilist=nil) then
+				nodo^.nextCurso:= nil
 			else
-				nodo^.nextrelation2:= relation1^.multilist;
-			relation1^.multilist:= nodo;
-			// Conecta la relacion 2 con los elementos de la lista de relacion 1
-			if (relation2^.multilist=nil) then
-				nodo^.nextrelation1:= nil
+				nodo^.nextCurso:= alumno^.multilist;
+			alumno^.multilist:= nodo;
+			// Conecta el curso con la lista de Alumnos
+			if (curso^.multilist=nil) then
+				nodo^.nextAlumno:= nil
 			else
-				nodo^.nextrelation1:= relation2^.multilist;
-			relation2^.multilist:= nodo
+				nodo^.nextAlumno:= curso^.multilist;
+			curso^.multilist:= nodo
 		end;
 	end;
 
-	procedure listarRelacion1(relation: Trelation2List);
+	procedure listarAlumnos(curso: Tcursos);
 	var
 		aux: Tmultilist;
 	begin
-		aux:= relation^.multilist;
+		aux:= curso^.multilist;
 		while (aux<>nil) do
 		begin
-			MostrarAlumno(aux^.relation1^.element);
-			aux:= aux^.nextrelation1;
+			MostrarAlumno(aux^.alumno^.element);
+			aux:= aux^.nextAlumno;
 		end
 	end;
 
-	procedure listarRelacion2(relation: Trelation1List);
+	procedure listarCursos(alumno: Talumnos);
 	var
 		aux: Tmultilist;
 	begin
-		aux:= relation^.multilist;
+		aux:= alumno^.multilist;
 		while (aux<>nil) do
 		begin
-			MostrarAlumno(aux^.relation1^.element);
-			aux:= aux^.nextrelation1;
+			MostrarCurso(aux^.curso^.element);
+			aux:= aux^.nextAlumno;
 		end
 	end;
 
