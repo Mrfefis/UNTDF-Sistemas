@@ -1,0 +1,4 @@
+UNTDF?Hipolito Yrigoyen
+1000?Ingeniería en Sistemas?8?4?Res-001
+1001?Medicina?12?6?Res-002
+1002?Arquitectura?10?5?Res-003
